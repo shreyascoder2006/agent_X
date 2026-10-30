@@ -1,5 +1,7 @@
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useSim } from '../../store/useSim.js';
-import { Ic } from '../ui/primitives.jsx';
+import { Ic, btn } from '../ui/primitives.jsx';
 import { hms, inr, plural } from '../../lib/format.js';
 import { useNow } from '../../hooks/useNow.js';
 import { cx } from '../../lib/cx.js';
@@ -15,64 +17,108 @@ export function Rearm({ where = 'banner', className }) {
   if (!sim.halted) return null;
   if (!sim.rearm) {
     return (
-      <button
-        type="button"
-        onClick={start}
-        className={cx(
-          'inline-flex items-center gap-2 rounded-lg border border-rose-400/50 bg-rose-500/10 px-3 py-2 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/20',
-          className,
-        )}
-      >
-        <Ic n="Unlock" size={15} /> Re-arm · step 1 of 2
+      <button type="button" onClick={start} className={cx(btn.base, btn.risk, btn.md, className)}>
+        <Ic n="Unlock" size={14} /> Re-arm · step 1 of 2
       </button>
     );
   }
   const left = Math.max(0, Math.ceil((sim.rearm.until - now) / 1000));
   return (
-    <div className={cx('flex flex-wrap items-center gap-2 rounded-xl border border-rose-400/40 bg-ink/70 px-3 py-2 animate-fadein', className)}>
-      <label htmlFor={`rearm-ack-${where}`} className="flex cursor-pointer items-center gap-2 text-xs text-zinc-200">
+    <div className={cx('flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-risk/30 bg-bg/70 px-3 py-2', className)}>
+      <label htmlFor={`rearm-ack-${where}`} className="flex cursor-pointer items-center gap-2 text-cap text-fg">
         <input
           id={`rearm-ack-${where}`}
           type="checkbox"
           checked={sim.rearm.ack}
           onChange={(e) => ack(e.target.checked)}
-          className="h-4 w-4 rounded border-zinc-600 accent-[#C6FF00]"
+          className="h-4 w-4 rounded border-line accent-[#C6FF00]"
         />
         Positions flat, orders cancelled, halt reason reviewed
       </label>
-      <button
-        type="button"
-        disabled={!sim.rearm.ack}
-        onClick={confirm}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-acid px-3 py-1.5 text-xs font-semibold text-ink transition enabled:hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
-      >
+      <button type="button" disabled={!sim.rearm.ack} onClick={confirm} className={cx(btn.base, btn.primary, btn.sm, 'font-semibold')}>
         <Ic n="Check" size={13} sw={2.4} /> Confirm re-arm · step 2
       </button>
-      <button type="button" onClick={cancel} className="text-xs text-zinc-400 transition hover:text-zinc-200">
-        Cancel <span className="font-mono tnum">({left}s)</span>
+      <button type="button" onClick={cancel} className="text-cap text-fg-3 transition hover:text-fg">
+        Cancel <span className="num">({left}s)</span>
       </button>
     </div>
   );
 }
 
+/** Slim persistent strip while trading is halted. */
 export function HaltBanner() {
   const sim = useSim((st) => st.sim);
-  if (!sim.halted || !sim.halt) return null;
-  const h = sim.halt;
   return (
-    <div className="animate-fadein border-b border-rose-500/30 bg-gradient-to-r from-rose-500/[0.14] via-rose-500/[0.07] to-transparent">
-      <div className="content-x flex flex-wrap items-center gap-3 py-3">
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-rose-500 text-white shadow-glowrose">
-          <Ic n="OctagonX" size={19} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-rose-100">HALTED · {h.reason}</p>
-          <p className="text-xs text-rose-200/70">
-            {plural(h.cancelled, 'order')} cancelled · {plural(h.flattened, 'position')} flattened in {h.flatMs} s ({inr(h.pnl, 2, true)}) · new orders locked since {hms(h.at)} IST
-          </p>
-        </div>
-        <Rearm where="banner" />
-      </div>
-    </div>
+    <AnimatePresence initial={false}>
+      {sim.halted && sim.halt && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+          className="relative z-20 overflow-hidden border-b border-risk/25 bg-risk/[0.07]"
+        >
+          <div className="content-x flex flex-wrap items-center gap-x-4 gap-y-2 py-2">
+            <span className="flex items-center gap-2 text-body font-semibold text-risk-text">
+              <Ic n="OctagonX" size={16} /> Trading halted
+            </span>
+            <span className="min-w-0 flex-1 truncate text-cap text-fg-2">
+              {sim.halt.reason} · {plural(sim.halt.cancelled, 'order')} cancelled · {plural(sim.halt.flattened, 'position')} flat in {sim.halt.flatMs} s ({inr(sim.halt.pnl, 2, true)}) ·
+              locked since <span className="num">{hms(sim.halt.at)}</span> IST
+            </span>
+            <Rearm where="banner" />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/** Screen-level reaction: rose pulse around the edge and a HALTED stamp; a lime sweep on re-arm. */
+export function HaltFX() {
+  const halted = useSim((st) => st.sim.halted);
+  const mode = useSim((st) => st.sim.mode);
+  const demoId = useSim((st) => st.sim.demo?.id);
+  const prev = useRef({ halted, key: `${mode}${demoId}` });
+  const [fx, setFx] = useState(null);
+  useEffect(() => {
+    const key = `${mode}${demoId}`;
+    const was = prev.current;
+    prev.current = { halted, key };
+    if (was.key !== key) return undefined; // switching sessions is not a halt
+    if (!was.halted && halted) setFx({ kind: 'halt', n: Date.now() });
+    else if (was.halted && !halted) setFx({ kind: 'rearm', n: Date.now() });
+    return undefined;
+  }, [halted, mode, demoId]);
+  useEffect(() => {
+    if (!fx) return undefined;
+    const id = setTimeout(() => setFx(null), fx.kind === 'halt' ? 2200 : 1000);
+    return () => clearTimeout(id);
+  }, [fx]);
+
+  return (
+    <>
+      {halted && <div className="pointer-events-none fixed inset-0 z-[60] shadow-[inset_0_0_0_1px_rgba(244,63,94,0.35)]" />}
+      <AnimatePresence>
+        {fx?.kind === 'halt' && (
+          <motion.div key={fx.n} className="pointer-events-none fixed inset-0 z-[61] grid place-items-center" exit={{ opacity: 0, transition: { duration: 0.4 } }}>
+            <div className="absolute inset-0 animate-edge" />
+            <motion.div
+              initial={{ scale: 1.6, opacity: 0, rotate: -9 }}
+              animate={{ scale: 1, opacity: 1, rotate: -7, transition: { type: 'spring', stiffness: 360, damping: 18 } }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="rounded-xl border-[3px] border-risk/90 bg-bg/40 px-8 py-3 text-[56px] font-bold leading-none tracking-[0.12em] text-risk-text shadow-[0_0_80px_rgba(244,63,94,0.35)] backdrop-blur-[1px]"
+            >
+              HALTED
+            </motion.div>
+          </motion.div>
+        )}
+        {fx?.kind === 'rearm' && (
+          <motion.div key={fx.n} className="pointer-events-none fixed inset-x-0 top-0 z-[61] h-[3px] overflow-hidden" exit={{ opacity: 0 }}>
+            <div className="h-full w-full animate-sweep bg-gradient-to-r from-transparent via-lime to-transparent" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

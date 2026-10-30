@@ -1,28 +1,27 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useSim, useDerived } from '../../store/useSim.js';
 import { NAV } from '../../data/constants.js';
-import { Ic, Logo, Ring } from '../ui/primitives.jsx';
+import { Dot, Ic, Logo, Ring } from '../ui/primitives.jsx';
 import { cx } from '../../lib/cx.js';
 import { hm } from '../../lib/format.js';
 
 function useBadges(sim) {
   const vetoes = sim.audit.filter((a) => a.day === 'Today' && a.type === 'VETO').length;
   return {
-    dashboard: sim.positions.length ? { text: `${sim.positions.length} open`, tone: 'acid' } : null,
-    activity: { text: 'live', tone: sim.halted ? 'rose' : 'acid', dot: true },
-    journal: { text: `${sim.journal.filter((j) => j.day === 'Today').length} today`, tone: 'zinc' },
-    backtest: sim.demo?.summary ? { text: 'result', tone: 'acid' } : null,
-    risk: sim.halted ? { text: 'HALT', tone: 'rose' } : vetoes ? { text: `${vetoes} veto`, tone: 'amber' } : null,
-    architecture: { text: '3D', tone: 'indigo' },
+    dashboard: sim.positions.length ? { text: String(sim.positions.length), tone: 'neutral', title: 'open positions' } : null,
+    activity: { live: true },
+    journal: { text: String(sim.journal.filter((j) => j.day === 'Today').length), tone: 'neutral', title: 'entries today' },
+    backtest: sim.demo?.summary ? { text: 'result', tone: 'neutral' } : null,
+    risk: sim.halted ? { text: 'halt', tone: 'rose' } : vetoes ? { text: `${vetoes} veto`, tone: 'amber' } : null,
+    architecture: { text: '3D', tone: 'neutral' },
   };
 }
 
 const BADGE = {
-  acid: 'bg-acid/10 text-acid',
-  rose: 'bg-rose-500/20 text-rose-300',
-  amber: 'bg-amber-500/15 text-amber-300',
-  indigo: 'bg-indigo-500/20 text-indigo-300',
-  zinc: 'bg-white/[0.05] text-zinc-400',
+  neutral: 'text-fg-3',
+  rose: 'bg-risk/15 text-risk-text px-1.5',
+  amber: 'bg-warn/10 text-warn-text px-1.5',
 };
 
 export function Sidebar() {
@@ -43,21 +42,18 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-line bg-base/95 md:flex">
-      <div className="gutter-l flex h-[68px] items-center gap-3 border-b border-line pr-4">
-        <Logo size={34} />
-        <div className="min-w-0">
-          <p className="text-[15px] font-semibold tracking-tight text-zinc-50">niyam</p>
-          <p className="truncate text-[11px] text-zinc-500">paper-trading agent · PS-02</p>
+    <aside className="relative z-20 hidden w-[232px] shrink-0 flex-col border-r border-hair bg-panel/60 md:flex">
+      <NavLink to="/home" title="Back to the Niyam home page" className="flex h-14 items-center gap-2.5 border-b border-hair px-4 transition-colors hover:bg-white/[0.02]">
+        <Logo size={26} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-body font-semibold text-fg">Circuit Breakers</p>
+          <p className="truncate text-cap text-fg-3">Niyam · paper workspace</p>
         </div>
-        <span className="ml-auto rounded-md bg-green-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-green-300 ring-1 ring-inset ring-green-500/30">
-          Paper
-        </span>
-      </div>
+        <Ic n="ChevronsUpDown" size={14} className="text-fg-mute" />
+      </NavLink>
 
-      <nav className="gutter-l scroll-thin flex-1 space-y-1 overflow-y-auto py-4 pr-3" aria-label="Main">
-        <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-600">Workspace</p>
-        {NAV.map((n) => {
+      <nav className="scroll-thin flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3" aria-label="Main">
+        {NAV.map((n, i) => {
           const b = badges[n.id];
           const pulse = cueView === n.id && location.pathname !== `/${n.id}`;
           return (
@@ -67,32 +63,35 @@ export function Sidebar() {
               onClick={() => onNav(n.id)}
               className={({ isActive }) =>
                 cx(
-                  'group relative flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-acid/60',
-                  isActive ? 'bg-acid/[0.07] text-acid shadow-glowsm' : 'text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100',
+                  'group relative flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-body transition-colors duration-150',
+                  isActive ? 'text-fg' : 'text-fg-2 hover:bg-white/[0.03] hover:text-fg',
                   pulse && 'animate-cue',
                 )
               }
             >
               {({ isActive }) => (
                 <>
-                  <span
-                    className={cx(
-                      'grid h-8 w-8 shrink-0 place-items-center rounded-lg ring-1 transition-all duration-200',
-                      isActive ? 'bg-acid text-ink ring-acid' : 'bg-white/[0.03] text-zinc-400 ring-white/[0.06] group-hover:text-zinc-100',
-                    )}
-                  >
-                    <Ic n={n.icon} size={16} sw={isActive ? 2.1 : 1.75} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{n.label}</span>
-                    <span className={cx('block truncate text-[11px]', isActive ? 'text-acid/60' : 'text-zinc-600')}>{n.short}</span>
-                  </span>
-                  {b && (
-                    <span className={cx('inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold', BADGE[b.tone])}>
-                      {b.dot && <span className={cx('h-1.5 w-1.5 rounded-full', b.tone === 'rose' ? 'bg-rose-400' : 'animate-pulse bg-acid')} />}
-                      {b.text}
-                    </span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-0 rounded-lg border border-hair bg-white/[0.045]"
+                      transition={{ type: 'spring', stiffness: 520, damping: 40 }}
+                    >
+                      <span className="absolute left-0 top-1/2 h-4 w-[2px] -translate-x-[3px] -translate-y-1/2 rounded-full bg-lime" />
+                    </motion.span>
                   )}
+                  <Ic n={n.icon} size={16} className={cx('relative transition-colors', isActive ? 'text-fg' : 'text-fg-mute group-hover:text-fg-2')} />
+                  <span className="relative min-w-0 flex-1 truncate font-medium">{n.label}</span>
+                  {b?.live ? (
+                    <Dot tone={sim.halted ? 'rose' : 'lime'} pulse={!sim.halted} className="relative mr-1" />
+                  ) : (
+                    b && (
+                      <span title={b.title} className={cx('num relative rounded text-cap', BADGE[b.tone])}>
+                        {b.text}
+                      </span>
+                    )
+                  )}
+                  <span className="sr-only">{`view ${i + 1}`}</span>
                 </>
               )}
             </NavLink>
@@ -100,55 +99,38 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="gutter-l space-y-3 border-t border-line py-4 pr-3">
-        <div className="rounded-xl border border-line bg-card p-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <span className={cx('grid h-9 w-9 place-items-center rounded-lg', sim.halted ? 'bg-rose-500/15 text-rose-400' : 'bg-acid/10 text-acid')}>
-                <Ic n="Bot" size={18} />
-              </span>
-              <span className={cx('absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-card', sim.halted ? 'bg-rose-500' : 'animate-pulse bg-acid')} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-zinc-100">Niyam agent</p>
-              <p className="truncate text-[11px] text-zinc-500">
-                {sim.halted ? 'Halted · awaiting re-arm' : `${sim.mode === 'demo' ? 'Replay' : 'Running'} · node ${sim.node}`}
-              </p>
-            </div>
-            <Ring value={d.loopProgress} size={38} stroke={3} color={sim.halted ? '#F43F5E' : '#C6FF00'}>
-              <span className="font-mono text-[10px] tnum text-zinc-300">{d.loop}</span>
-            </Ring>
-          </div>
-          <div className="mt-2.5 flex items-center justify-between text-[11px] text-zinc-500">
-            <span>Loop {d.loop} of 25</span>
-            <span className="font-mono tnum">next {hm(d.nextLoop)}</span>
+      <div className="space-y-2 border-t border-hair p-2.5">
+        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+          <Ring value={d.loopProgress} size={30} stroke={2} color={sim.halted ? '#F43F5E' : '#A3A9B3'}>
+            <span className="num text-cap text-fg-2">{d.loop}</span>
+          </Ring>
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 text-cap font-medium text-fg">
+              <Dot tone={sim.halted ? 'rose' : 'lime'} pulse={!sim.halted} />
+              {sim.halted ? 'Agent halted' : sim.mode === 'demo' ? 'Agent · replay' : 'Agent running'}
+            </p>
+            <p className="num truncate text-cap text-fg-3">
+              {sim.halted ? 'awaiting re-arm' : `${sim.node} · next ${hm(d.nextLoop)}`}
+            </p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={sim.halted ? rearmStart : kill}
+          aria-label={sim.halted ? 'Trading halted. Start the re-arm' : 'Kill switch: cancel orders, flatten positions, lock trading'}
           className={cx(
-            'group flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300',
-            sim.halted ? 'bg-rose-500 text-white shadow-glowrose' : 'bg-rose-500/[0.08] text-rose-300 ring-1 ring-rose-500/40 hover:bg-rose-500/15',
-            killCue && 'animate-pulse ring-2 ring-rose-400',
+            'group flex h-10 w-full items-center gap-2.5 rounded-lg border px-3 text-left transition-colors duration-200',
+            sim.halted ? 'border-risk/50 bg-risk/15 text-risk-text' : 'border-risk/25 bg-risk/[0.05] text-risk-text hover:border-risk/45 hover:bg-risk/10',
+            killCue && 'animate-pulse border-risk',
           )}
         >
-          <span className="flex items-center gap-2.5">
-            <Ic n={sim.halted ? 'Lock' : 'Power'} size={16} sw={2.2} />
-            <span>
-              <span className="block text-xs font-semibold uppercase tracking-wider">{sim.halted ? 'Halted' : 'Kill switch'}</span>
-              <span className="block text-[11px] opacity-75">{sim.halted ? 'Re-arm · 2 steps' : 'cancel · flatten · lock'}</span>
-            </span>
-          </span>
-          <Ic n="ChevronRight" size={14} className="opacity-60 transition group-hover:translate-x-0.5" />
+          <Ic n={sim.halted ? 'Lock' : 'Power'} size={15} sw={2.2} />
+          <span className="flex-1 text-body font-semibold">{sim.halted ? 'Halted · re-arm' : 'Kill switch'}</span>
+          <span className="text-cap opacity-70">{sim.halted ? '2 steps' : 'one press'}</span>
         </button>
 
-        <p className="px-1 text-[10px] leading-relaxed text-zinc-600">
-          Team Circuit Breakers · AgentX 2026
-          <br />
-          Paper trading only · illustrative data
-        </p>
+        <p className="px-2 pt-1 text-cap text-fg-mute">AgentX 2026 · PS-02 · paper only</p>
       </div>
     </aside>
   );
