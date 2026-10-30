@@ -1,0 +1,56 @@
+/** Niyam design tokens: near-black terminal surfaces, acid-lime accent, indigo + green secondaries. */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  theme: {
+    extend: {
+      colors: {
+        ink: '#09090B',
+        base: '#0D0D10',
+        panel: '#111114',
+        card: '#151519',
+        card2: '#1B1B20',
+        line: '#24242A',
+        line2: '#32323A',
+        acid: { DEFAULT: '#C6FF00', 300: '#DBFF66', 600: '#A3D600', 900: '#253300' },
+      },
+      fontFamily: {
+        sans: ['Geist', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'],
+        mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        glow: '0 0 0 1px rgba(198,255,0,.28), 0 0 32px -10px rgba(198,255,0,.55)',
+        glowsm: '0 0 0 1px rgba(198,255,0,.20), 0 0 18px -8px rgba(198,255,0,.55)',
+        glowrose: '0 0 0 1px rgba(244,63,94,.40), 0 0 40px -10px rgba(244,63,94,.70)',
+      },
+      keyframes: {
+        fadein: { '0%': { opacity: '0', transform: 'translateY(6px)' }, '100%': { opacity: '1', transform: 'none' } },
+        viewin: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'none' } },
+        flashup: { '0%': { backgroundColor: 'rgba(198,255,0,.26)', color: '#ECFFB3' }, '100%': { backgroundColor: 'rgba(198,255,0,0)' } },
+        flashdown: { '0%': { backgroundColor: 'rgba(244,63,94,.30)', color: '#FFC2CC' }, '100%': { backgroundColor: 'rgba(244,63,94,0)' } },
+        glowup: { '0%': { textShadow: '0 0 18px rgba(198,255,0,.75)', filter: 'brightness(1.35)' }, '100%': { textShadow: '0 0 0 rgba(198,255,0,0)', filter: 'none' } },
+        glowdown: { '0%': { textShadow: '0 0 18px rgba(244,63,94,.8)', filter: 'brightness(1.3)' }, '100%': { textShadow: '0 0 0 rgba(244,63,94,0)', filter: 'none' } },
+        cue: { '0%,100%': { boxShadow: '0 0 0 0 rgba(198,255,0,0)' }, '50%': { boxShadow: '0 0 0 3px rgba(198,255,0,.28), 0 0 26px -4px rgba(198,255,0,.65)' } },
+        marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+        shimmer: { '0%': { backgroundPosition: '200% 0' }, '100%': { backgroundPosition: '-200% 0' } },
+        blink: { '0%,100%': { opacity: '1' }, '50%': { opacity: '0' } },
+        spinslow: { to: { transform: 'rotate(360deg)' } },
+        scan: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(250%)' } },
+      },
+      animation: {
+        fadein: 'fadein .24s ease-out both',
+        viewin: 'viewin .26s cubic-bezier(.2,.7,.2,1) both',
+        flashup: 'flashup .8s ease-out',
+        flashdown: 'flashdown .8s ease-out',
+        glowup: 'glowup .9s ease-out',
+        glowdown: 'glowdown .9s ease-out',
+        cue: 'cue 1.3s ease-in-out infinite',
+        marquee: 'marquee 110s linear infinite',
+        shimmer: 'shimmer 1.8s linear infinite',
+        blink: 'blink 1s step-end infinite',
+        spinslow: 'spinslow 14s linear infinite',
+        scan: 'scan 1.6s ease-in-out infinite',
+      },
+    },
+  },
+  plugins: [],
+};

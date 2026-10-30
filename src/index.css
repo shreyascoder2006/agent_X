@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Single dark look, set explicitly so the app reads the same on any host theme. */
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #09090b;
+  color: #e4e4e7;
+  font-family: theme('fontFamily.sans');
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.app-bg {
+  background-color: #09090b;
+  background-image:
+    radial-gradient(1100px 520px at 12% -12%, rgba(198, 255, 0, 0.055), transparent 60%),
+    radial-gradient(900px 600px at 105% 110%, rgba(79, 70, 229, 0.09), transparent 60%),
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: auto, auto, 28px 28px, 28px 28px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Side gutters that also clear a phone's side system bar. */
+.gutter-l {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+}
+.content-x {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 768px) {
+  .content-x {
+    padding-left: 24px;
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+}
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a31 transparent;
+}
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #2a2a31;
+  border-radius: 8px;
+}
+
+/* Tilt cards: cursor-following glow (the tilt itself is set in JS). */
+.tilt {
+  position: relative;
+  transform-style: preserve-3d;
+}
+.tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(198, 255, 0, 0.07), transparent 42%);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.tilt:hover::after {
+  opacity: 1;
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #71717a 0%, #f4f4f5 50%, #71717a 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+}
+
+.recharts-wrapper *:focus,
+.recharts-surface:focus {
+  outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
