@@ -97,6 +97,27 @@ body {
   outline: none;
 }
 
+/* ---------- Landing page (#home) ---------- */
+.globe-spin { animation: globe-spin 150s linear infinite; }
+.globe-terminator { animation: globe-terminator 95s linear infinite; }
+@keyframes globe-spin { from { transform: translateX(0); } to { transform: translateX(-1600px); } }
+@keyframes globe-terminator { from { transform: translateX(-700px); } to { transform: translateX(1700px); } }
+.animate-floaty { animation: floaty 7s ease-in-out infinite; }
+.animate-floaty-slow { animation: floaty 10s ease-in-out infinite; }
+@keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.animate-ping-soft { animation: ping-soft 2.2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+@keyframes ping-soft { 0% { transform: scale(1); opacity: 0.9; } 80%, 100% { transform: scale(2.4); opacity: 0; } }
+.shiny-text {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0) 60%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  display: inline-block;
+  animation: shiny-run 4s linear infinite;
+}
+@keyframes shiny-run { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+#landing ::selection { background: #b8f14d; color: #0c0f05; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

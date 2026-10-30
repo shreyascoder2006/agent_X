@@ -12,10 +12,16 @@ export default {
         line: '#24242A',
         line2: '#32323A',
         acid: { DEFAULT: '#C6FF00', 300: '#DBFF66', 600: '#A3D600', 900: '#253300' },
+        // landing page (#home)
+        volt: { DEFAULT: '#b8f14d', soft: '#d7ff8a', deep: '#7fb32a' },
+        coal: '#060607',
       },
       fontFamily: {
         sans: ['Geist', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', 'Arial', 'sans-serif'],
         mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        landing: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Inter', 'ui-sans-serif', 'sans-serif'],
+        signature: ['Caveat', 'cursive'],
       },
       boxShadow: {
         glow: '0 0 0 1px rgba(198,255,0,.28), 0 0 32px -10px rgba(198,255,0,.55)',

@@ -44,7 +44,7 @@ export function Sidebar() {
 
   return (
     <aside className="hidden w-[264px] shrink-0 flex-col border-r border-line bg-base/95 md:flex">
-      <div className="gutter-l flex h-[68px] items-center gap-3 border-b border-line pr-4">
+      <NavLink to="/home" title="Back to the Niyam home page" className="gutter-l flex h-[68px] items-center gap-3 border-b border-line pr-4 transition-colors hover:bg-white/[0.02]">
         <Logo size={34} />
         <div className="min-w-0">
           <p className="text-[15px] font-semibold tracking-tight text-zinc-50">niyam</p>
@@ -53,7 +53,7 @@ export function Sidebar() {
         <span className="ml-auto rounded-md bg-green-600/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-green-300 ring-1 ring-inset ring-green-500/30">
           Paper
         </span>
-      </div>
+      </NavLink>
 
       <nav className="gutter-l scroll-thin flex-1 space-y-1 overflow-y-auto py-4 pr-3" aria-label="Main">
         <p className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-600">Workspace</p>

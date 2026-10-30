@@ -4,12 +4,13 @@ import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NAV } from '../data/constants.js';
 
-const IDS = NAV.map((n) => n.id);
+// `home` is the landing page; the rest are the console views.
+const IDS = ['home', ...NAV.map((n) => n.id)];
 const fromHash = () => (window.location.hash || '').replace(/^#\/?/, '');
 
 export function initialPath() {
   const h = fromHash();
-  return IDS.includes(h) ? `/${h}` : '/dashboard';
+  return IDS.includes(h) ? `/${h}` : '/home';
 }
 
 export function useHashSync() {

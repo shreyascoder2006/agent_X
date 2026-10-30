@@ -15,6 +15,7 @@ import Journal from './pages/Journal.jsx';
 import Backtest from './pages/Backtest.jsx';
 import Risk from './pages/Risk.jsx';
 import Architecture from './pages/Architecture.jsx';
+import Landing from './landing/Landing.jsx';
 
 export default function App() {
   useEffect(() => startEngine(), []);
@@ -25,6 +26,15 @@ export default function App() {
   useEffect(() => {
     document.getElementById('main')?.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
+
+  if (location.pathname === '/home') {
+    return (
+      <>
+        <Landing />
+        <DemoDirector />
+      </>
+    );
+  }
 
   return (
     <div className="app-bg flex h-full overflow-hidden text-zinc-200">
